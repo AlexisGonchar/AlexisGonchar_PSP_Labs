@@ -71,19 +71,20 @@ int main(int argc, char* argv[])
 
     // Шаг 4 - чтение и передача сообщений
     int nsize;
-    while ((nsize = recv(my_sock, &buff[0], sizeof(buff) - 1, 0)) != SOCKET_ERROR)
+    int res[2];
+    while ((nsize = recv(my_sock, (char*)res, 2 * sizeof(int), NULL)) != SOCKET_ERROR)
     {
         // ставим завершающий ноль в конце строки
         buff[nsize] = 0;
 
-        // выводим на экран
-        printf("S=>C:%s", buff);
+        std::cout << res[0];
 
         // читаем пользовательский ввод с клавиатуры
-        printf("S<=C:"); fgets(&buff[0], sizeof(buff) - 1, stdin);
+        //printf("S<=C:"); fgets(&buff[0], sizeof(buff) - 1, stdin);
 
         // проверка на "quit"
-        if (!strcmp(&buff[0], "quit\n"))
+        /*
+         if (!strcmp(&buff[0], "quit\n"))
         {
             // Корректный выход
             printf("Exit...");
@@ -94,6 +95,8 @@ int main(int argc, char* argv[])
 
         // передаем строку клиента серверу
         send(my_sock, &buff[0], strlen(&buff[0]), 0);
+        */
+       
     }
     printf("Recv error %d\n", WSAGetLastError());
     closesocket(my_sock);

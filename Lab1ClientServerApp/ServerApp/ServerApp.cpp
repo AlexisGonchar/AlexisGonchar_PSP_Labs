@@ -23,7 +23,7 @@ int nclients = 0;
 int main()
 {
     setlocale(0, "");
-    char buff[1024]; // Буфер для различных нужд
+    int buff[1024]; // Буфер для различных нужд
 
     printf("TCP SERVER \n");
     // Шаг 1 - Инициализация Библиотеки Сокетов
@@ -122,10 +122,12 @@ DWORD WINAPI SexToClient(LPVOID client_socket)
     SOCKET my_sock;
     my_sock = ((SOCKET*)client_socket)[0];
     char buff[20 * 1024];
-#define sHELLO "Hello, Sailor\r\n"
+    int sHELLO[2];
+    sHELLO[0] = 21;
+    sHELLO[1] = 2;
 
     // отправляем клиенту приветствие
-    send(my_sock, sHELLO, sizeof(sHELLO), 0);
+    send(my_sock, (char *)sHELLO, sizeof(int)*2, 0);
 
     // цикл эхо-сервера: прием строки от клиента и возвращение ее клиенту
     int bytes_recv;
