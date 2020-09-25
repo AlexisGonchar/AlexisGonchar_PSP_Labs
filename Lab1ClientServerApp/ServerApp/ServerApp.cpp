@@ -131,7 +131,11 @@ DWORD WINAPI SexToClient(LPVOID client_socket)
     int bytes_recv;
     while ((bytes_recv = recv(my_sock, &buff[0], sizeof(buff), 0)) &&
         bytes_recv != SOCKET_ERROR)
+    {
         send(my_sock, &buff[0], bytes_recv, 0);
+        buff[bytes_recv] = 0;
+        printf("Client:%s", buff);
+    }
 
     // если мы здесь, то произошел выход из цикла по причине
     // возращения функцией recv ошибки - соединение с клиентом разорвано

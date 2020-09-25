@@ -1,20 +1,102 @@
-﻿// ClientApp.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
+﻿// Пример простого TCP-клиента
+#include <stdio.h>
+#include <string.h>
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#pragma comment(lib, "ws2_32.lib")
+#include <winsock2.h>
+#include <windows.h>
 #include <iostream>
 
-int main()
+#define PORT 666
+char SERVERADDR[11];
+
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello World!\n";
+    std::cin >> SERVERADDR;
+    char buff[1024];
+    printf("TCP CLIENT\n");
+
+    // Шаг 1 - инициализация библиотеки Winsock
+    if (WSAStartup(0x202, (WSADATA*)&buff[0]))
+    {
+        printf("WSAStart error %d\n", WSAGetLastError());
+        return -1;
+    }
+
+    // Шаг 2 - создание сокета
+    SOCKET my_sock;
+    my_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (my_sock < 0)
+    {
+        printf("Socket() error %d\n", WSAGetLastError());
+        return -1;
+    }
+
+    // Шаг 3 - установка соединения
+    // заполнение структуры sockaddr_in - указание адреса и порта сервера
+    sockaddr_in dest_addr;
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(PORT);
+    HOSTENT* hst;
+
+    // преобразование IP адреса из символьного в сетевой формат
+    if (inet_addr(SERVERADDR) != INADDR_NONE)
+        dest_addr.sin_addr.s_addr = inet_addr(SERVERADDR);
+    else
+    {
+        // попытка получить IP адрес по доменному имени сервера
+        if (hst = gethostbyname(SERVERADDR))
+            // hst->h_addr_list содержит не массив адресов,
+            // а массив указателей на адреса
+            ((unsigned long*)&dest_addr.sin_addr)[0] =
+            ((unsigned long**)hst->h_addr_list)[0][0];
+        else
+        {
+            printf("Invalid address %s\n", SERVERADDR);
+            closesocket(my_sock);
+            WSACleanup();
+            return -1;
+        }
+    }
+
+    // адрес сервера получен - пытаемся установить соединение
+    if (connect(my_sock, (sockaddr*)&dest_addr, sizeof(dest_addr)))
+    {
+        printf("Connect error %d\n", WSAGetLastError());
+        return -1;
+    }
+
+    printf("Connection to %s successfully\n \
+            Type quit for quit\n\n", SERVERADDR);
+
+    // Шаг 4 - чтение и передача сообщений
+    int nsize;
+    while ((nsize = recv(my_sock, &buff[0], sizeof(buff) - 1, 0)) != SOCKET_ERROR)
+    {
+        // ставим завершающий ноль в конце строки
+        buff[nsize] = 0;
+
+        // выводим на экран
+        printf("S=>C:%s", buff);
+
+        // читаем пользовательский ввод с клавиатуры
+        printf("S<=C:"); fgets(&buff[0], sizeof(buff) - 1, stdin);
+
+        // проверка на "quit"
+        if (!strcmp(&buff[0], "quit\n"))
+        {
+            // Корректный выход
+            printf("Exit...");
+            closesocket(my_sock);
+            WSACleanup();
+            return 0;
+        }
+
+        // передаем строку клиента серверу
+        send(my_sock, &buff[0], strlen(&buff[0]), 0);
+    }
+    printf("Recv error %d\n", WSAGetLastError());
+    closesocket(my_sock);
+    WSACleanup();
+    return -1;
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
