@@ -19,11 +19,22 @@ DWORD WINAPI SexToClient(LPVOID client_socket);
 
 // глобальная переменная - количество активных пользователей
 int nclients = 0;
+int arr[4][250];
+int clientscount;
+
 
 int main()
 {
+    char buff[1024];
     setlocale(0, "");
-    int buff[1024]; // Буфер для различных нужд
+    int i = 0;
+    int j = 0;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 250; j++) {
+            arr[i][j] = rand() % 1000;
+        }
+    }
+    clientscount = 0;
 
     printf("TCP SERVER \n");
     // Шаг 1 - Инициализация Библиотеки Сокетов
@@ -121,22 +132,19 @@ DWORD WINAPI SexToClient(LPVOID client_socket)
 {
     SOCKET my_sock;
     my_sock = ((SOCKET*)client_socket)[0];
-    char buff[20 * 1024];
-    int sHELLO[2];
-    sHELLO[0] = 21;
-    sHELLO[1] = 2;
 
     // отправляем клиенту приветствие
-    send(my_sock, (char *)sHELLO, sizeof(int)*2, 0);
+    send(my_sock, (char *)arr[clientscount], sizeof(int)*250, 0);
+    clientscount++;
 
     // цикл эхо-сервера: прием строки от клиента и возвращение ее клиенту
     int bytes_recv;
-    while ((bytes_recv = recv(my_sock, &buff[0], sizeof(buff), 0)) &&
+    while ((bytes_recv = recv(my_sock, (char *)&arr[clientscount][0], sizeof(arr[clientscount]), 0)) &&
         bytes_recv != SOCKET_ERROR)
     {
-        send(my_sock, &buff[0], bytes_recv, 0);
-        buff[bytes_recv] = 0;
-        printf("Client:%s", buff);
+        send(my_sock, (char *)&arr[clientscount][0], bytes_recv, 0);
+        arr[clientscount][bytes_recv] = 0;
+        printf("Client:%s", arr[clientscount]);
     }
 
     // если мы здесь, то произошел выход из цикла по причине

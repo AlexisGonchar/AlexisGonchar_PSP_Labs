@@ -12,9 +12,22 @@ char SERVERADDR[11];
 
 int main(int argc, char* argv[])
 {
-    std::cin >> SERVERADDR;
     char buff[1024];
     printf("TCP CLIENT\n");
+    int choose;
+    std::cout << "Choose:\n1.Local IP\n2.Enter IP\n";
+    std::cin >> choose;
+    switch (choose) 
+    {
+        case 1:
+            strcpy_s(SERVERADDR, "127.0.0.1");
+            break;
+        case 2: 
+            std::cout << "Enter server's ip address:";
+            std::cin >> SERVERADDR;
+            break;
+    }
+    
 
     // Шаг 1 - инициализация библиотеки Winsock
     if (WSAStartup(0x202, (WSADATA*)&buff[0]))
@@ -70,14 +83,26 @@ int main(int argc, char* argv[])
             Type quit for quit\n\n", SERVERADDR);
 
     // Шаг 4 - чтение и передача сообщений
+    const int arraysize = 250;
     int nsize;
-    int res[2];
-    while ((nsize = recv(my_sock, (char*)res, 2 * sizeof(int), NULL)) != SOCKET_ERROR)
+    int res[arraysize];
+    while ((nsize = recv(my_sock, (char*)res, arraysize * sizeof(int), NULL)) != SOCKET_ERROR)
     {
+        nsize = nsize / sizeof(int);
         // ставим завершающий ноль в конце строки
         buff[nsize] = 0;
-
-        std::cout << res[0];
+        int tmp;
+        for (int i = 1; i < arraysize; i++)
+            for (int j = i; j > 0 && res[j - 1] > res[j]; j--) 
+            {
+                tmp = res[j - 1];
+                res[j - 1] = res[j];
+                res[j] = tmp;
+            }
+                
+        for (const auto& e : res) {
+            std::cout << e << std::endl;
+        }
 
         // читаем пользовательский ввод с клавиатуры
         //printf("S<=C:"); fgets(&buff[0], sizeof(buff) - 1, stdin);
