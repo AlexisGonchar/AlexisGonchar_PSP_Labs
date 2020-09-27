@@ -86,8 +86,7 @@ int main(int argc, char* argv[])
     const int arraysize = 250;
     int nsize;
     int res[arraysize];
-    while ((nsize = recv(my_sock, (char*)res, arraysize * sizeof(int), NULL)) != SOCKET_ERROR)
-    {
+    nsize = recv(my_sock, (char*)res, arraysize * sizeof(int), NULL) != SOCKET_ERROR;
         nsize = nsize / sizeof(int);
         // ставим завершающий ноль в конце строки
         buff[nsize] = 0;
@@ -122,9 +121,9 @@ int main(int argc, char* argv[])
         send(my_sock, (char*)res, sizeof(int) * arraysize, 0);
         
        
-    }
+    
     printf("Recv error %d\n", WSAGetLastError());
     closesocket(my_sock);
     WSACleanup();
-    return -1;
+    return 0;
 }

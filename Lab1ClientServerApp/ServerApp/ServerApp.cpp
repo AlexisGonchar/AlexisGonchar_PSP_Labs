@@ -7,12 +7,47 @@
 #include <windows.h>
 #include <locale.h>
 #include <iostream>
+#include <vector>
 
 #define MY_PORT 666 // Порт, который слушает сервер 666
 
 // макрос для печати количества активных пользователей
 #define PRINTNUSERS if (nclients) printf("%d user on-line\n", nclients); \
-        else printf("No User on line\n");
+        else if(arrayscount == -1 && clientscount == 4) final();
+
+
+
+std::vector<int> merge(std::vector<int> a1, std::vector<int> a2, int size) {
+    const int a1l = size;
+    const int a2l = size;
+    const int a3l = size * 2;
+    std::vector<int> a3(size * 2);
+    int i = 0, j = 0;
+    for (int k = 0; k < a3l; k++) {
+
+        if (i > a1l - 1) {
+            int a = a2[j];
+            a3[k] = a;
+            j++;
+        }
+        else if (j > a2l - 1) {
+            int a = a1[i];
+            a3[k] = a;
+            i++;
+        }
+        else if (a1[i] < a2[j]) {
+            int a = a1[i];
+            a3[k] = a;
+            i++;
+        }
+        else {
+            int b = a2[j];
+            a3[k] = b;
+            j++;
+        }
+    }
+    return a3;
+}
 
 // прототип функции, обслуживающий подключившихся пользователей
 DWORD WINAPI SexToClient(LPVOID client_socket);
@@ -20,9 +55,23 @@ DWORD WINAPI SexToClient(LPVOID client_socket);
 // глобальная переменная - количество активных пользователей
 int nclients = 0;
 int arr[4][250];
+int arrres[1000];
 int clientscount;
 int arrayscount;
 
+
+void final() {
+    std::vector<std::vector<int> > m;
+    m.reserve(18);
+    for (std::size_t i = 0; i != 4; ++i)
+        m.push_back(std::vector<int>(arr[i], arr[i] + 250));
+    std::vector<int> result = merge(merge(m[0], m[1], 250), merge(m[2], m[3], 250), 500);
+    for (std::vector<int>::iterator it = result.begin(); it != result.end(); ++it) {
+        std::cout << *it;
+        std::cout << "\n";
+    }
+        
+}
 
 int main()
 {
@@ -145,18 +194,17 @@ DWORD WINAPI SexToClient(LPVOID client_socket)
         bytes_recv != SOCKET_ERROR)
     {
         arrayscount--;
-        std::cout << "New:\n";
-        for (const auto& e : arr[arrayscount + 1]) {
-            std::cout << e << std::endl;
-        }
     }
 
     // если мы здесь, то произошел выход из цикла по причине
     // возращения функцией recv ошибки - соединение с клиентом разорвано
     nclients--; // уменьшаем счетчик активных клиентов
     printf("-disconnect\n"); PRINTNUSERS
-
+    {
         // закрываем сокет
         closesocket(my_sock);
+    }
+
+        
     return 0;
 }
