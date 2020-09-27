@@ -117,10 +117,10 @@ int main(int argc, char* argv[])
             WSACleanup();
             return 0;
         }
-
-        // передаем строку клиента серверу
-        send(my_sock, &buff[0], strlen(&buff[0]), 0);
         */
+        // передаем строку клиента серверу
+        send(my_sock, (char*)res, sizeof(int) * arraysize, 0);
+        
        
     }
     printf("Recv error %d\n", WSAGetLastError());

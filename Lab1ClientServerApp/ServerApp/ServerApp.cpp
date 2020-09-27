@@ -21,6 +21,7 @@ DWORD WINAPI SexToClient(LPVOID client_socket);
 int nclients = 0;
 int arr[4][250];
 int clientscount;
+int arrayscount;
 
 
 int main()
@@ -35,6 +36,7 @@ int main()
         }
     }
     clientscount = 0;
+    arrayscount = 3;
 
     printf("TCP SERVER \n");
     // Шаг 1 - Инициализация Библиотеки Сокетов
@@ -139,12 +141,14 @@ DWORD WINAPI SexToClient(LPVOID client_socket)
 
     // цикл эхо-сервера: прием строки от клиента и возвращение ее клиенту
     int bytes_recv;
-    while ((bytes_recv = recv(my_sock, (char *)&arr[clientscount][0], sizeof(arr[clientscount]), 0)) &&
+    while ((bytes_recv = recv(my_sock, (char *)&arr[arrayscount][0], sizeof(int)*250, 0)) &&
         bytes_recv != SOCKET_ERROR)
     {
-        send(my_sock, (char *)&arr[clientscount][0], bytes_recv, 0);
-        arr[clientscount][bytes_recv] = 0;
-        printf("Client:%s", arr[clientscount]);
+        arrayscount--;
+        std::cout << "New:\n";
+        for (const auto& e : arr[arrayscount + 1]) {
+            std::cout << e << std::endl;
+        }
     }
 
     // если мы здесь, то произошел выход из цикла по причине
