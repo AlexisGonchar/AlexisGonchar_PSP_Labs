@@ -6,25 +6,29 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <iostream>
+#include <vector>
+using namespace std;
 
 #define PORT 666
 char SERVERADDR[11];
+
+
 
 int main(int argc, char* argv[])
 {
     char buff[1024];
     printf("TCP CLIENT\n");
     int choose;
-    std::cout << "Choose:\n1.Local IP\n2.Enter IP\n";
-    std::cin >> choose;
+    cout << "Choose:\n1.Local IP\n2.Enter IP\n";
+    cin >> choose;
     switch (choose) 
     {
         case 1:
             strcpy_s(SERVERADDR, "127.0.0.1");
             break;
         case 2: 
-            std::cout << "Enter server's ip address:";
-            std::cin >> SERVERADDR;
+            cout << "Enter server's ip address:";
+            cin >> SERVERADDR;
             break;
     }
     
@@ -83,47 +87,32 @@ int main(int argc, char* argv[])
             Type quit for quit\n\n", SERVERADDR);
 
     // Шаг 4 - чтение и передача сообщений
-    const int arraysize = 250;
+    int arraysize = 0;
     int nsize;
-    int res[arraysize];
-    nsize = recv(my_sock, (char*)res, arraysize * sizeof(int), NULL) != SOCKET_ERROR;
-        nsize = nsize / sizeof(int);
-        // ставим завершающий ноль в конце строки
-        buff[nsize] = 0;
-        int tmp;
-        for (int i = 1; i < arraysize; i++)
-            for (int j = i; j > 0 && res[j - 1] > res[j]; j--) 
-            {
-                tmp = res[j - 1];
-                res[j - 1] = res[j];
-                res[j] = tmp;
-            }
-                
-        for (const auto& e : res) {
-            std::cout << e << std::endl;
-        }
-
-        // читаем пользовательский ввод с клавиатуры
-        //printf("S<=C:"); fgets(&buff[0], sizeof(buff) - 1, stdin);
-
-        // проверка на "quit"
-        /*
-         if (!strcmp(&buff[0], "quit\n"))
-        {
-            // Корректный выход
-            printf("Exit...");
-            closesocket(my_sock);
-            WSACleanup();
-            return 0;
-        }
-        */
-        // передаем строку клиента серверу
-        send(my_sock, (char*)res, sizeof(int) * arraysize, 0);
-        
-       
     
-    printf("Recv error %d\n", WSAGetLastError());
+    nsize = recv(my_sock, (char*)&arraysize, sizeof(int), NULL) != SOCKET_ERROR;
+    vector<int> res(arraysize);
+    nsize = recv(my_sock, (char*)&res[0], arraysize * sizeof(int), NULL) != SOCKET_ERROR;
+    nsize = nsize / sizeof(int);
+    // ставим завершающий ноль в конце строки
+    buff[nsize] = 0;
+    int tmp;
+    for (int i = 1; i < arraysize; i++)
+        for (int j = i; j > 0 && res[j - 1] > res[j]; j--) 
+        {
+            tmp = res[j - 1];
+            res[j - 1] = res[j];
+            res[j] = tmp;
+        }
+                
+    // передаем строку клиента серверу
+    send(my_sock, (char*)&res[0], sizeof(int) * arraysize, 0);
+    for (const auto& e : res) {
+        cout << e << endl;
+    }
     closesocket(my_sock);
     WSACleanup();
+    int i;
+    cin >> i;
     return 0;
 }

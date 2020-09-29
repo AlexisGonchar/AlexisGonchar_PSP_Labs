@@ -8,20 +8,17 @@
 #include <locale.h>
 #include <iostream>
 #include <vector>
+using namespace std;
 
 #define MY_PORT 666 // Порт, который слушает сервер 666
 
-// макрос для печати количества активных пользователей
-#define PRINTNUSERS if (nclients) printf("%d user on-line\n", nclients); \
-        else if(arrayscount == -1 && clientscount == 4) final();
 
 
-
-std::vector<int> merge(std::vector<int> a1, std::vector<int> a2, int size) {
-    const int a1l = size;
-    const int a2l = size;
-    const int a3l = size * 2;
-    std::vector<int> a3(size * 2);
+vector<int> merge(vector<int> a1, vector<int> a2) {
+    const int a1l = a1.size();
+    const int a2l = a2.size();
+    const int a3l = a1l + a2l;
+    vector<int> a3(a3l);
     int i = 0, j = 0;
     for (int k = 0; k < a3l; k++) {
 
@@ -49,43 +46,48 @@ std::vector<int> merge(std::vector<int> a1, std::vector<int> a2, int size) {
     return a3;
 }
 
-// прототип функции, обслуживающий подключившихся пользователей
-DWORD WINAPI SexToClient(LPVOID client_socket);
-
 // глобальная переменная - количество активных пользователей
 int nclients = 0;
-int arr[4][250];
+
+
 int arrres[1000];
-int clientscount;
-int arrayscount;
+vector<vector<int>> arr;
+int CountOfClients;
+int ArraySize;
+int PartSize;
 
 
 void final() {
-    std::vector<std::vector<int> > m;
-    m.reserve(18);
-    for (std::size_t i = 0; i != 4; ++i)
-        m.push_back(std::vector<int>(arr[i], arr[i] + 250));
-    std::vector<int> result = merge(merge(m[0], m[1], 250), merge(m[2], m[3], 250), 500);
-    for (std::vector<int>::iterator it = result.begin(); it != result.end(); ++it) {
-        std::cout << *it;
-        std::cout << "\n";
+    vector<int> result(0);
+    for (int i = 0; i < CountOfClients; i++) {
+        result = merge(result, arr[i]);
+    }
+    for (vector<int>::iterator it = result.begin(); it != result.end(); ++it) {
+        cout << *it;
+        cout << "\n";
     }
         
 }
 
+
 int main()
 {
+    cout << "Enter the number of clients:\n";
+    cin >> CountOfClients;
+    do {
+        cout << "Enter the number of items:\n";
+        cin >> ArraySize;
+    } while ((ArraySize % CountOfClients) != 0);
+    
+    PartSize = ArraySize / CountOfClients;
     char buff[1024];
     setlocale(0, "");
-    int i = 0;
-    int j = 0;
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 250; j++) {
-            arr[i][j] = rand() % 1000;
+    arr = vector<vector<int>>(CountOfClients, vector<int>(PartSize));
+    for (int i = 0; i < CountOfClients; ++i) {
+        for (int j = 0; j < PartSize; ++j) {
+            arr[i][j] = rand() % 1000 + 1;
         }
     }
-    clientscount = 0;
-    arrayscount = 3;
 
     printf("TCP SERVER \n");
     // Шаг 1 - Инициализация Библиотеки Сокетов
@@ -152,10 +154,12 @@ int main()
     // функции accept необходимо передать размер структуры
     int client_addr_size = sizeof(client_addr);
 
+    vector<SOCKET> client_sockets(CountOfClients);
     // цикл извлечения запросов на подключение из очереди
     while ((client_socket = accept(mysocket, (sockaddr*)&client_addr, \
         & client_addr_size)))
     {
+        client_sockets[nclients] = client_socket;
         nclients++; // увеличиваем счетчик подключившихся клиентов
 
         // пытаемся получить имя хоста
@@ -165,46 +169,29 @@ int main()
         // вывод сведений о клиенте
         printf("+%s [%s] new connect!\n",
             (hst) ? hst->h_name : "", inet_ntoa(client_addr.sin_addr));
-        PRINTNUSERS
+
 
             // Вызов нового потока для обслужвания клиента
             // Да, для этого рекомендуется использовать _beginthreadex
             // но, поскольку никаких вызовов функций стандартной Си библиотеки
             // поток не делает, можно обойтись и CreateThread
             DWORD thID;
-        CreateThread(NULL, NULL, SexToClient, &client_socket, NULL, &thID);
-    }
-    return 0;
-}
-
-// Эта функция создается в отдельном потоке
-// и обсуживает очередного подключившегося клиента независимо от остальных
-DWORD WINAPI SexToClient(LPVOID client_socket)
-{
-    SOCKET my_sock;
-    my_sock = ((SOCKET*)client_socket)[0];
-
-    // отправляем клиенту приветствие
-    send(my_sock, (char *)arr[clientscount], sizeof(int)*250, 0);
-    clientscount++;
-
-    // цикл эхо-сервера: прием строки от клиента и возвращение ее клиенту
-    int bytes_recv;
-    while ((bytes_recv = recv(my_sock, (char *)&arr[arrayscount][0], sizeof(int)*250, 0)) &&
-        bytes_recv != SOCKET_ERROR)
-    {
-        arrayscount--;
-    }
-
-    // если мы здесь, то произошел выход из цикла по причине
-    // возращения функцией recv ошибки - соединение с клиентом разорвано
-    nclients--; // уменьшаем счетчик активных клиентов
-    printf("-disconnect\n"); PRINTNUSERS
-    {
-        // закрываем сокет
-        closesocket(my_sock);
-    }
-
+        if (nclients == CountOfClients) {
+            for (int i = 0; i < CountOfClients; i++) {
+                send(client_sockets[i], (char*)&PartSize, sizeof(int), 0);
+                send(client_sockets[i], (char*)&arr[i][0], sizeof(int) * PartSize, 0);
+                int bytes_recv;
+                bytes_recv = recv(client_sockets[i], (char*)&arr[i][0], sizeof(int) * PartSize, 0);
+                nclients--; // уменьшаем счетчик активных клиентов
+                printf("-disconnect\n"); 
+                {
+                    // закрываем сокет
+                    closesocket(client_sockets[i]);
+                }
+            }
+            final();
+        }
         
+    }
     return 0;
 }
