@@ -8,6 +8,7 @@
 #include <locale.h>
 #include <iostream>
 #include <vector>
+#include <ctime>
 using namespace std;
 
 #define MY_PORT 666 // Порт, который слушает сервер 666
@@ -55,6 +56,7 @@ vector<vector<int>> arr;
 int CountOfClients;
 int ArraySize;
 int PartSize;
+long start_time, end_time;
 
 
 void final() {
@@ -62,6 +64,9 @@ void final() {
     for (int i = 0; i < CountOfClients; i++) {
         result = merge(result, arr[i]);
     }
+    end_time = clock() - start_time;
+    cout << end_time;
+    cout << " ms\n";
     for (vector<int>::iterator it = result.begin(); it != result.end(); ++it) {
         cout << *it;
         cout << "\n";
@@ -176,6 +181,7 @@ int main()
             // но, поскольку никаких вызовов функций стандартной Си библиотеки
             // поток не делает, можно обойтись и CreateThread
             DWORD thID;
+            start_time = clock();
         if (nclients == CountOfClients) {
             for (int i = 0; i < CountOfClients; i++) {
                 send(client_sockets[i], (char*)&PartSize, sizeof(int), 0);
@@ -191,6 +197,7 @@ int main()
             }
             final();
         }
+        
         
     }
     return 0;
