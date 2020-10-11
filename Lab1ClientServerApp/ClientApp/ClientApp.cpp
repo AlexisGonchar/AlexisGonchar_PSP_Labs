@@ -107,9 +107,9 @@ int main(int argc, char* argv[])
                 
     // передаем строку клиента серверу
     send(my_sock, (char*)&res[0], sizeof(int) * arraysize, 0);
-    for (const auto& e : res) {
+    /*for (const auto& e : res) {
         cout << e << endl;
-    }
+    }*/
     closesocket(my_sock);
     WSACleanup();
     int i;
