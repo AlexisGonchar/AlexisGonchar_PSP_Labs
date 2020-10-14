@@ -7,11 +7,10 @@
 #include <windows.h>
 #include <locale.h>
 #include <iostream>
-#include <vector>
-#include <ctime>
 using namespace std;
 
 #define MY_PORT 666 // Порт, который слушает сервер 666
+const unsigned int MAX_BUF_LENGTH = 4096;
 
 char buff[1024];
 
@@ -82,7 +81,7 @@ int main()
     while ((client_socket = accept(mysocket, (sockaddr*)&client_addr, \
         & client_addr_size)))
     {
-        char message[1024];
+        char message[MAX_BUF_LENGTH];
         // пытаемся получить имя хоста
         HOSTENT* hst;
         hst = gethostbyaddr((char*)&client_addr.sin_addr.s_addr, 4, AF_INET);
@@ -92,9 +91,8 @@ int main()
             (hst) ? hst->h_name : "", inet_ntoa(client_addr.sin_addr));
         
         int bytes_recv;
-        bytes_recv = recv(client_socket, &message[0], 1024, 0);
-        message[bytes_recv] = 0;
-        cout << message;
+        bytes_recv = recv(client_socket, &message[0], MAX_BUF_LENGTH, 0);
+        cout << message << endl;
         printf("-disconnect\n");
         // закрываем сокет
         closesocket(client_socket);

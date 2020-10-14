@@ -6,12 +6,13 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <iostream>
+#include <string>
 using namespace std;
 
 #define PORT 666
+const unsigned int MAX_BUF_LENGTH = 4096;
+
 char SERVERADDR[11];
-
-
 
 int main(int argc, char* argv[])
 {
