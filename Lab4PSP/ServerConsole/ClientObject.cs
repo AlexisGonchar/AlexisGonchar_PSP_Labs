@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace ServerConsole
@@ -64,7 +65,18 @@ namespace ServerConsole
         void ThreadProc(Object pass)
         {
             string password = (string)pass;
-            var answer = Encoding.Unicode.GetBytes(password + ": NORM");
+            bool correct = false;
+            var regexstr = @"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[-_]).{6,}$";
+            Regex regex = new Regex(regexstr);
+            if (regex.IsMatch(password))
+            {
+                if(!Regex.Match(password, @"[а-яА-Я]").Success && !Regex.Match(password, @"[/*+=!@#$%^,.<>;:()&|\`~{}]").Success)
+                {
+                    correct = true;
+                } 
+            }
+            var correctStr = correct ? "Correct" : "Incorrect";
+            var answer = Encoding.Unicode.GetBytes(password + ": " + correctStr);
             stream.Write(answer, 0, answer.Length);
         }
     }
