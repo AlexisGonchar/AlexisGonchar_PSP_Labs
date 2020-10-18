@@ -1,5 +1,8 @@
-﻿namespace NetworkPoolLib
+﻿using System;
+
+namespace NetworkPoolLib
 {
+    [Serializable]
     public class Password
     {
         public string Pass { get; private set; }

@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkPoolLib", "NetworkPoolLib\NetworkPoolLib.csproj", "{B030401A-6A7A-4611-9559-7919E3356972}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientUI", "ClientUI\ClientUI.csproj", "{0E2DBEC5-6F32-4FAD-82E9-B4C1DF7559A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerConsole", "ServerConsole\ServerConsole.csproj", "{F9E01755-A07A-47F1-8971-F287773F4E16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{B030401A-6A7A-4611-9559-7919E3356972}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B030401A-6A7A-4611-9559-7919E3356972}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B030401A-6A7A-4611-9559-7919E3356972}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2DBEC5-6F32-4FAD-82E9-B4C1DF7559A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2DBEC5-6F32-4FAD-82E9-B4C1DF7559A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2DBEC5-6F32-4FAD-82E9-B4C1DF7559A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2DBEC5-6F32-4FAD-82E9-B4C1DF7559A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9E01755-A07A-47F1-8971-F287773F4E16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9E01755-A07A-47F1-8971-F287773F4E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9E01755-A07A-47F1-8971-F287773F4E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9E01755-A07A-47F1-8971-F287773F4E16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
