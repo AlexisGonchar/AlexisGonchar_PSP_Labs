@@ -87,6 +87,7 @@ namespace Lab5PSP
                 RequestUri.EndsWith(".css") ||
                 RequestUri.EndsWith(".html") ||
                 RequestUri.EndsWith(".js") ||
+                RequestUri.EndsWith(".ico") ||
                 RequestUri.EndsWith(".htm"))
             {
                 if (RequestUri.EndsWith("/"))
@@ -94,7 +95,7 @@ namespace Lab5PSP
                     RequestUri += "index.html";
                 }
 
-                string FilePath = "www/" + RequestUri;
+                string FilePath = "Resources/" + RequestUri;
 
                 // Если в папке www не существует данного файла, посылаем ошибку 404
                 if (!File.Exists(FilePath))
@@ -173,9 +174,10 @@ namespace Lab5PSP
                 FS.Close();
                 Client.Close();
             }
-            else
+            else if(RequestUri.Length > 2)
             {
                 string password = RequestUri.Remove(0, 1);
+                Console.WriteLine(password);
                 bool correct = false;
                 var regexstr = @"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[-_]).{6,}$";
                 Regex regex = new Regex(regexstr);
