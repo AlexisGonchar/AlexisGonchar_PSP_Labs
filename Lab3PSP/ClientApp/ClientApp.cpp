@@ -86,15 +86,22 @@ int main(int argc, char* argv[])
     printf("Connection to %s successfully\n \
             Type quit for quit\n\n", SERVERADDR);
 
-    char message[1024];
-    cout << "Enter the message.\n";
-    cin >> message;
+    char message[MAX_BUF_LENGTH];
 
-    // Шаг 4 - чтение и передача сообщений
-    int nsize;
+    while (strcmp(message, "quit") != 0) {
+        cout << "Enter the message.\n";
+        cin >> message;
 
-    // передаем строку клиента серверу
-    send(my_sock, (char*)&message[0], 1024, 0);
+        // Шаг 4 - чтение и передача сообщений
+        int nsize;
+
+        // передаем строку клиента серверу
+        send(my_sock, &message[0], MAX_BUF_LENGTH, 0);
+
+        recv(my_sock, &message[0], MAX_BUF_LENGTH, 0);
+        cout << message << endl;
+    }
+    
     closesocket(my_sock);
     WSACleanup();
     int i;
