@@ -1,0 +1,67 @@
+﻿<html>
+<head>
+    <title>Lab7PSP</title>  
+</head>
+<body>
+    <h1>Enter password:</h1>
+    <input type="text" id="passtext"></input>
+    <input type="button" value="Send" onclick="SendPass()"></input>
+    <p id="correct"><p>
+                        <script language="javascript" type="text/javascript">
+
+                            var wsUri = "ws://localhost:8080/";
+                            var output;
+
+                            function init() {
+                                output = document.getElementById("correct");
+                                testWebSocket();
+                            }
+
+                            function testWebSocket() {
+                                websocket = new WebSocket(wsUri);
+                                websocket.onopen = function (evt) { onOpen(evt) };
+                                websocket.onclose = function (evt) { onClose(evt) };
+                                websocket.onmessage = function (evt) { onMessage(evt) };
+                                websocket.onerror = function (evt) { onError(evt) };
+                            }
+
+                            function onOpen(evt) {
+                                //output.innerHTML = evt.data;
+                                writeToScreen("CONNECTED");
+                            }
+
+                            function onClose(evt) {
+                                writeToScreen("DISCONNECTED");
+                            }
+
+                            function onMessage(evt) {
+                                output.innerHTML = evt.data;
+                            }
+
+                            function onError(evt) {
+                                writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+                            }
+
+                            function doSend(message) {
+                                writeToScreen("SENT: " + message);
+                                websocket.send(message);
+                            }
+
+                            function writeToScreen(message) {
+                                var pre = document.createElement("p");
+                                pre.style.wordWrap = "break-word";
+                                pre.innerHTML = message;
+                                output.appendChild(pre);
+                            }
+
+                            function SendPass() {
+                                let pass = document.getElementById('passtext').value;
+                                console.log(pass);
+                                doSend(pass);
+                            }
+
+                            window.addEventListener("load", init, false);
+
+                        </script>
+</body>
+</html>
